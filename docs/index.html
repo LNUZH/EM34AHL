@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Do greener reports mean lower profits? | Indian banks 2017–2021</title>
+  <meta name="description" content="An interactive look at whether Indian banks that report more about the environment earn less. A replication of Pawar & Munuswamy (2024).">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/plotly-basic.min.js"></script>
+  <script src="data/results.js"></script>
+</head>
+<body>
+
+<!-- TODO(team): choose a team name (pseudonym). It appears here and in the footer. -->
+<header class="hero">
+  <p class="kicker">Team EM34AHL · Empirical Methods, University of Zurich, HS 2026</p>
+  <h1>Do banks that talk more about the environment earn less?</h1>
+  <p class="lede">We re-ran the analysis of a published study on ten large Indian banks. Here is what the data say, and what they cannot say.</p>
+</header>
+
+<main>
+
+  <!-- 1. Summary box (required) -->
+  <section class="summary" aria-labelledby="summary-title">
+    <h2 id="summary-title">The study in one minute</h2>
+    <dl>
+      <dt>The question</dt>
+      <dd>Pawar &amp; Munuswamy (2024) ask whether banks that publish more information about their environmental activities are more or less profitable.</dd>
+      <dt>What they found</dt>
+      <dd>Banks with more environmental reporting had <strong>lower</strong> profits, measured by return on assets (ROA) and return on equity (ROE). Earnings per share showed no clear link.</dd>
+      <dt>What we found</dt>
+      <dd>We reproduced their estimates of the main effects exactly, using their public data. But the negative link only appears once other bank characteristics, above all <strong>bad loans</strong>, are held constant. On their own, the raw numbers point the other way.</dd>
+      <dt>The catch</dt>
+      <dd>This is a <strong>correlation, not proof of cause</strong>. With <span data-fact="n_banks"></span> banks over <span data-fact="n_years"></span> years, the evidence is too thin to say that reporting makes banks less profitable.</dd>
+    </dl>
+  </section>
+
+  <!-- 2. Data -->
+  <section aria-labelledby="data-title">
+    <h2 id="data-title">What we looked at</h2>
+    <p>
+      <span data-fact="n_banks"></span> banks from India's Nifty Bank Index, fiscal years <span data-fact="year_from"></span> to <span data-fact="year_to"></span>, so <span data-fact="n_obs"></span> bank-years in total.
+      For each bank and year, the authors read the annual report and gave points for every statement about the environment
+      (the <strong>environmental reporting score</strong>; average <span data-fact="mean_env"></span> points).
+      Profitability is measured by:
+    </p>
+    <ul class="defs">
+      <li><strong>ROA</strong> (return on assets): profit as a share of everything the bank owns. Average: <span data-fact="mean_roa"></span>.</li>
+      <li><strong>ROE</strong> (return on equity): profit as a share of the shareholders' money. Average: <span data-fact="mean_roe"></span>.</li>
+    </ul>
+  </section>
+
+  <!-- 3. Chart 1: raw picture -->
+  <section aria-labelledby="raw-title">
+    <h2 id="raw-title">At first sight: more reporting, slightly <em>higher</em> profits</h2>
+    <p>Each dot is one bank in one year. Pick a profit measure and a bank to follow it over time.</p>
+    <div class="controls" role="group" aria-label="Chart options">
+      <div class="seg" role="radiogroup" aria-label="Profit measure">
+        <button type="button" data-y="roe" class="active" aria-pressed="true">ROE</button>
+        <button type="button" data-y="roa" aria-pressed="false">ROA</button>
+      </div>
+      <label>Follow a bank
+        <select id="bank-select"><option value="">none</option></select>
+      </label>
+    </div>
+    <div id="chart-raw" class="chart" role="img" aria-label="Scatter plot of profit against environmental reporting score"></div>
+    <p class="takeaway" id="raw-takeaway"></p>
+  </section>
+
+  <!-- 4. Chart 2: controls lab (the key interactive) -->
+  <section aria-labelledby="lab-title">
+    <h2 id="lab-title">Compare like with like, and the picture flips</h2>
+    <p>
+      Banks differ in many ways besides their reports. To compare banks that are similar in other respects, the study "controls" for six characteristics.
+      Switch them on and off and watch the estimated link between reporting and profit.
+    </p>
+    <div class="lab">
+      <fieldset class="lab-controls">
+        <legend>Hold constant</legend>
+        <div id="ctrl-boxes"></div>
+        <div class="lab-buttons">
+          <button type="button" id="ctrl-none">None</button>
+          <button type="button" id="ctrl-all">All six (the paper)</button>
+        </div>
+        <div class="seg small" role="radiogroup" aria-label="Profit measure">
+          <button type="button" data-y2="roe" class="active" aria-pressed="true">ROE</button>
+          <button type="button" data-y2="roa" aria-pressed="false">ROA</button>
+        </div>
+        <label class="check"><input type="checkbox" id="drop-idfc"> Drop IDFC First Bank (suspicious data)</label>
+      </fieldset>
+      <div class="lab-result">
+        <div class="big-number" id="lab-number" aria-live="polite"></div>
+        <p id="lab-text"></p>
+        <div id="chart-lab" class="chart small" role="img" aria-label="Estimated effect for all 64 combinations of controls"></div>
+      </div>
+    </div>
+    <p class="note">Each dot in the small chart is one of the 64 possible combinations of controls; the highlighted one is your choice. Lines show 95% confidence intervals. Pooled OLS.</p>
+  </section>
+
+  <!-- 5. Table -->
+  <section aria-labelledby="table-title">
+    <h2 id="table-title">How sturdy is the result? Seven ways to estimate it</h2>
+    <p>The same question, answered with different statistical methods. Negative numbers mean: more reporting goes with lower profit.</p>
+    <div class="seg" role="radiogroup" aria-label="Profit measure">
+      <button type="button" data-y3="roe" class="active" aria-pressed="true">ROE</button>
+      <button type="button" data-y3="roa" aria-pressed="false">ROA</button>
+    </div>
+    <div class="table-wrap">
+      <table id="ext-table">
+        <thead><tr><th scope="col">Method</th><th scope="col">Effect of +1 point</th><th scope="col">Effect of +1 typical step<sup>a</sup></th><th scope="col">Confidence</th><th scope="col">Bank-years</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note"><sup>a</sup> One standard deviation of the score (<span data-fact="sd_env"></span> points), in percentage points of profit.
+      Confidence: *** p &lt; 0.01, ** p &lt; 0.05, * p &lt; 0.1, "–" not statistically significant. Standard errors clustered by bank, except for the paper's model.</p>
+  </section>
+
+  <!-- 6. Interpretation -->
+  <section aria-labelledby="meaning-title">
+    <h2 id="meaning-title">So does reporting cost banks money?</h2>
+    <!-- TODO(team): shorten / adapt; keep the three points -->
+    <ul class="points">
+      <li><strong>Bad loans drive the flip.</strong> Banks with more bad loans report less <em>and</em> earn less. Ignore bad loans, and the reporting score looks good because it stands in for "healthy bank".</li>
+      <li><strong>Correlation, not cause.</strong> Better or worse managed banks may both report differently and earn differently. And profits might drive reporting, not the other way round.</li>
+      <li><strong>Small sample.</strong> Ten banks over five years leave little room. Most of the differences in reporting are between banks, not changes within a bank over time.</li>
+    </ul>
+  </section>
+
+  <!-- 7. Exam questions (required: three, progressively harder) -->
+  <section aria-labelledby="quiz-title" class="quiz">
+    <h2 id="quiz-title">Test yourself: three exam-style questions</h2>
+    <p class="draft-banner">DRAFT – questions and answers to be written and checked by the team. Remove this banner before submission.</p>
+    <details>
+      <summary><span class="qn">Q1</span> Without controls, the slope of ROE on the reporting score is positive. With bad loans (net NPA) as a control, it is negative. Use the omitted variable bias formula to explain the sign change.</summary>
+      <div class="answer" id="answer-1"></div>
+    </details>
+    <details>
+      <summary><span class="qn">Q2</span> The authors use a Hausman test that does not reject random effects. Why is this weak evidence that the bank effect is uncorrelated with the reporting score here?</summary>
+      <div class="answer"><p>TODO(team)</p></div>
+    </details>
+    <details>
+      <summary><span class="qn">Q3</span> Propose an instrument for the reporting score and discuss whether it satisfies relevance and the exclusion restriction.</summary>
+      <div class="answer"><p>TODO(team)</p></div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>Study:</strong> Pawar, D. S., &amp; Munuswamy, J. (2024). Does environmental reporting of banks affect their financial performance? Evidence from India. <em>International Journal of Bank Marketing</em>, 42(4), 745–767. <a href="https://doi.org/10.1108/IJBM-12-2022-0545">doi:10.1108/IJBM-12-2022-0545</a></p>
+  <p><strong>Data:</strong> Munuswamy, J., &amp; Pawar, D. S. (2024). Mendeley Data, V1, <a href="https://doi.org/10.17632/vtxmwt2958.1">doi:10.17632/vtxmwt2958.1</a> (CC BY 4.0).</p>
+  <p><strong>Code:</strong> <a href="https://github.com/LNUZH/EM34AHL">github.com/LNUZH/EM34AHL</a>. All numbers on this page come from our replication (<code>PS3_Solution.R</code>, exported by <code>PS4_Export.R</code>, <span id="meta-created"></span>).</p>
+  <p class="small">Charts: plotly.js (MIT licence). A student project, not investment advice.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

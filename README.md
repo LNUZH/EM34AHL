@@ -63,3 +63,19 @@ install.packages(c("readxl", "plm", "sandwich", "lmtest"))
 | (e) | Pooled OLS, random effects (Swamy–Arora), fixed effects; LM and Hausman tests; SE types | `regressions_ours.csv` | Table 1 |
 | (f) | Comparison with the published Tables 8–10; deviations | `comparison_full.csv`, `deviations.csv` | Section 3.1, Appendix A.3 |
 | (g) | Extension A–G: bank + year FE, without IDFC First, lagged ENV, first differences, lag without FE; clustered and conventional SE | `extension.csv` | Table 2, Section 5.1 |
+
+## Problem Set 4: interactive website
+
+Live site: https://lnuzh.github.io/EM34AHL/ (GitHub Pages, served from `docs/` on `main`)
+
+| File | Content |
+|---|---|
+| `PS4_Export.R` | Sources `PS3_Solution.R` and writes every number shown on the site to `docs/data/results.js` |
+| `docs/index.html` | Page structure and text |
+| `docs/app.js` | Charts, table and interactive controls (reads `window.RESULTS`) |
+| `docs/style.css` | Layout |
+| `docs/vendor/plotly-basic.min.js` | plotly.js 2.35.3 (MIT licence, see `plotly-LICENSE.txt`) |
+
+To update the site after a change in the replication: run `Rscript PS4_Export.R` from the repository root,
+commit `docs/data/results.js` and push. No number on the site is typed by hand.
+
